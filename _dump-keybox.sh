@@ -185,16 +185,16 @@ fi;
 JSON="_status.json";
 if [ ! -f "$JSON" ]; then
   deleteJSON=1;
-  myWGet -q -O "$JSON" --no-check-certificate --no-cache --header="Cache-Control: max-age=80" https://android.googleapis.com/attestation/status 2>&1 || error "failed to downolad compromised certificates list";
+  myWGet -q -O "$JSON" --no-check-certificate --no-cache --header="Cache-Control: max-age=80" https://android.googleapis.com/attestation/status 2>&1 || error "failed to downolad revoked certificates list";
 fi;
 
 (( i = 0 )); (( L = i ));
 for SN in $SNList; do
   (( i++ ));
-  Compromised=$(cat "$JSON" | grep -w "$SN");
-  if [ -n "$Compromised" ]; then
+  Revoked=$(cat "$JSON" | grep -w "$SN");
+  if [ -n "$Revoked" ]; then
     (( L = i ));
-    myWarn "Certificate $L is compromised - SERIAL NUMBER: $SN" >> "$TXT";
+    myWarn "Certificate $L is revoked - SERIAL NUMBER: $SN" >> "$TXT";
   fi;
 done;
 if (( L > 0 )); then
@@ -208,11 +208,11 @@ else
 fi;
 
 if (( L > 0 )); then
-  myWarn "KeyBox is COMPROMISED" >> "$TXT";
+  myWarn "KeyBox is REVOKED" >> "$TXT";
 elif (( J > 0 )); then
   myWarn "KeyBox is AOSP type" >> "$TXT";
 else
-  myPrint "KeyBox is not compromised" >> "$TXT";
+  myPrint "KeyBox is not revoked" >> "$TXT";
 fi;
 echo "" >> "$TXT";
 
