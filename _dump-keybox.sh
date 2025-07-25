@@ -1,4 +1,6 @@
 #!/system/bin/sh
+
+# If using Termux: Remove the first hash below and move the line to the top instead of the existing first line
 ##!/data/data/com.termux/files/usr/bin/sh
 
 # zgfg @ xda © Jan 2025- All Rights Reserved
