@@ -8,7 +8,7 @@
 # Usage on rooted phones:
 #
 # BusyBox and OpenSSL modules must be installed.
-# Terminal must be granted root access.
+# Terminal app must be granted root access.
 #
 # Calling:
 # (ba)sh ./_dump-keybox <KB-FILE>
@@ -55,7 +55,6 @@
 # https://tryigit.dev/android-keybox-attestation-analysis/
 # https://docs.openssl.org/3.4/man1/openssl/
 # https://github.com/openssl
-
 
 
 # Helper functions
