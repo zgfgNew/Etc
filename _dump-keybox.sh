@@ -1,16 +1,69 @@
-#!/system/bin/sh
+#!/system/bin/bash
 
-# If using Termux: Remove the first hash below and move the line to the top instead of the existing first line
-##!/data/data/com.termux/files/usr/bin/sh
-
+# Android shell script _dump-keybox.sh for analyzing and dumping info from a keybox file.
+# Script only reads the KB file, it does not install KB file and does not make any changes to the KB file.
+ 
 # zgfg @ xda © Jan 2025- All Rights Reserved
+
+# Usage on rooted phones:
+#
+# BusyBox and OpenSSL packages must be installed.
+# Terminal must be granted root access.
+#
+# Calling:
+# (ba)sh ./_dump-keybox <KB-FILE>
+#
+# If KB-FILE not provided, it will look for the local KB file ./keybox.xml
+# If local KB File not found, it will look for Tricky Store KB file /data/adb/tricky_store/keybox.file.
+
+# MiXPlorer:
+#
+# Select the script in folder and take Execute from the top-right Menu.
+# It will dump KB file from the same folder or the Tricky Store KB file.
+
+# Termux:
+# Root is not required but without root it cannot dump /data/adb/tricky_store/keybox.xml
+#
+# Install the packages:
+# pkg install openssl-tool
+# pkg install busybox
+# pkg install wget
+#
+# Grant storage access:
+# termux-setup-storage
+# When popping-up, enable Storage access to Termux app
+#
+# Call with bash shell, like:
+# bash ./_dump-keybox <KB-FILE>
+
+# Public revocation json status list
+#
+# If local _status.json file is not provided, script will download the status from:
+# https://android.googleapis.com/attestation/status
+#
+# Upon checking the revocations, script will delete the downloaded status file.
+# That way it forces each time downloading and using the latest available status file.
+#
+# It can happen that a particular Intenet connection downloads a cached version (up to a day old) of the status file.
+# Try to download a newer (bigger, with additional revocations added to the bottom of the list) from another connection,
+# and provide the downloaded status file as the local file renamed to _status.json
+#
+# In that case, script will not download but will use the provided status file.
+# Also, it won't delete that given status file, it will leave it and reuse for the next dumping.
+
+# Resources:
+# https://tryigit.dev/android-keybox-attestation-analysis/
+# https://docs.openssl.org/3.4/man1/openssl/
+# https://github.com/openssl
+
+
 
 # Helper functions
 myPrint() { echo "-- $@"; }
-myWarn() { echo "!!!! $@"; }
+myWarn() { echo "!!! $@"; }
 myRemove() { if [ -n "$@" -a  -f "$@" ]; then rm -f "$@"; fi; }
 
-clean() {
+myClean() {
 # Remove temporary files
   myPrint "Removing temporary files";
   myRemove "$TMP";
@@ -20,10 +73,10 @@ clean() {
 #  deleteJSON="";
   if [ -n "$deleteJSON" ]; then myRemove "$JSON"; fi;
 }
-error() { myWarn "ERROR: $@, cannot proceed"; clean; exit 1; }
+myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 
 # Check for working directory
-DIR=${0%/*};
+DIR=$pwd;
 if [ -z "$DIR" -o "$DIR" == "/" ]; then
   DIR="/sdcard/Download";
 fi;
@@ -39,9 +92,9 @@ cd "$DIR";
 myPrint "Working directory: $(pwd)";
 
 # Check for root permissions
-if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
-  error "root permissions missing";
-fi;
+#if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
+#  myWarn "root permissions missing";
+#fi;
 
 # Check for KB file to dump
 LOCALKB="$DIR/keybox.xml";
@@ -55,7 +108,7 @@ fi;
 
 myPrint "KeyBox file: $KB";
 if [ ! -f "$KB" ]; then
-  error "$KB file to dump not found";
+  myError "$KB file to dump not found";
 fi;
 
 # Reformat KB
@@ -67,14 +120,14 @@ cat "$KB" | \
   sed 's!^[ \t]*!!' >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
-  error "failed to reformat $KB";
+  myError "failed to reformat $KB";
 fi;
 
 # Check for OpenSSL
 if [ -n $(which openssl) ]; then
   myOpenSSL() { openssl "$@"; }
 else
-  error "openssl executable not found";
+  myError "openssl executable not found";
 fi;
 
 # Convert KB to P7B format
@@ -83,7 +136,7 @@ rm -f "$P7B";
 myOpenSSL crl2pkcs7 -nocrl -certfile "$TMP" -out "$P7B";
 
 if [ ! -f "$P7B" ]; then
-  error "failed to convert $KB to pkcs7";
+  myError "failed to convert $KB to pkcs7";
 fi;
 
 # Dump KB to CER format
@@ -92,7 +145,7 @@ rm -f "$CER";
 myOpenSSL pkcs7 -print_certs -text -in "$P7B" -out "$CER";
 
 if [ ! -f "$CER" ]; then
-  error "failed to dump $KB";
+  myError "failed to dump $KB";
 fi;
 
 # Extract info from KB to text file
@@ -140,16 +193,19 @@ echo "Serial Numbers:\n$SNList" >> "$TXT";
 echo "" >> "$TXT";
 
 if [ -z "$SNList" ]; then
-  error "Serial Numbers not extracted";
+  myError "Serial Numbers not extracted";
 fi;
 
 # Check for BusyBox
 if [ -z $(which busybox) ]; then
-  error "busybox executable not found";
+  myExit "busybox executable not found";
 fi;
 myDate() { busybox date "$@"; }
-myWGet() { busybox wget "$@"; }
-
+if [ -z "$TERMUX_VERSION" ]; then
+  myWGet() { busybox wget "$@"; }
+else
+   myWGet() { wget "$@"; }
+fi;
 
 # Extract Not After dates
 UTC=$(myDate --utc);
@@ -160,7 +216,7 @@ NAList=$(cat "$TXT" | grep 'Not After:' | \
   sed 's/ G.*$//' | sed 's/ /_/g');
 
 if [ -z "$NAList" ]; then
-  error "Not After dates not extracted";
+  myError "Not After dates not extracted";
 fi;
 
 # Check Not After dates
@@ -183,7 +239,7 @@ fi;
 JSON="_status.json";
 if [ ! -f "$JSON" ]; then
   deleteJSON=1;
-  myWGet -q -O "$JSON" --no-check-certificate --no-cache --header="Cache-Control: max-age=80" https://android.googleapis.com/attestation/status 2>&1 || error "failed to downolad revoked certificates list";
+  myWGet -q -O "$JSON" --no-check-certificate --no-cache --header="Cache-Control: max-age=80" https://android.googleapis.com/attestation/status 2>&1 || myError "failed to downolad revoked certificates list";
 fi;
 
 (( i = 0 )); (( L = i ));
@@ -217,7 +273,7 @@ echo "" >> "$TXT";
 # Print results
 cat "$TXT" | grep -v 'KeyBox file:';
 
-clean;
+myClean;
 
 # Finish debug logging
 if [ -n "$LogFile" ]; then
