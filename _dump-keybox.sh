@@ -7,7 +7,7 @@
 
 # Usage on rooted phones:
 #
-# BusyBox and OpenSSL packages must be installed.
+# BusyBox and OpenSSL modules must be installed.
 # Terminal must be granted root access.
 #
 # Calling:
