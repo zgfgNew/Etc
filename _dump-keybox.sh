@@ -73,8 +73,6 @@ fi;
 # Check for OpenSSL
 if [ -n $(which openssl) ]; then
   myOpenSSL() { openssl "$@"; }
-elif [ -n $(which OPENSSL) ]; then
-  myOpenSSL() { OPENSSL "$@"; }
 else
   error "openssl executable not found";
 fi;
