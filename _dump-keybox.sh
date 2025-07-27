@@ -79,9 +79,14 @@ myClean() {
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 
 # Check for working directory
+PWD=$(pwd);
+myPrint "Arguments 0=$0, 1=$1, pwd=$PWD";
 DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");
-if [ -z "$DIR" -o "$DIR" == "/" ]; then
+if [ -z "$DIR" -o "$DIR" == "/" -o "$DIR" == "/data/data/com.mixplorer/cache"  ]; then
+  DIR="$PWD";
+fi;
+if [ -z "$DIR -o "$DIR" == "/"" ]; then
   DIR="/sdcard/Download";
 fi;
 cd "$DIR";
@@ -95,8 +100,10 @@ if [ -n "$LogFile" ]; then
 fi;
 
 # Check for root permissions
-#if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
-#  myWarn "root permissions missing";
+WHOAMI="$(whoami 2>/dev/null)";
+myPrint "USER=$USER, whoami=$WHOAMI";
+#if [ "$USER" != "root" -a "$WHOAMI" != "root" ]; then
+#  myWarn "root permissons missing";
 #fi;
 
 # Check for KB file to dump
@@ -127,8 +134,10 @@ if [ ! -f "$TMP" ]; then
 fi;
 
 # Check for OpenSSL
-if [ -n $(which openssl) ]; then
-  myOpenSSL() { openssl "$@"; }
+OPENSSL=$(which openssl);
+myPrint "openssl=$OPENSSL";
+if [ -n "$OPENSSL"  ]; then
+  myOpenSSL() { "$OPENSSL" "$@"; }
 else
   myError "openssl executable not found";
 fi;
@@ -209,13 +218,16 @@ if [ -z "$SNList" ]; then
   myError "Serial Numbers not extracted";
 fi;
 
-# Check for BusyBox
-if [ -z $(which busybox) ]; then
-  myExit "busybox executable not found";
+BUSYBOX=$(which busybox);
+myPrint "busybox=$BUSYBOX";
+if [ -n "$BUSYBOX"  ]; then
+  myBusyBox() { "$BUSYBOX" "$@"; }
+else
+  myError "busybox executable not found";
 fi;
 myDate() { busybox date "$@"; }
 if [ -z "$TERMUX_VERSION" ]; then
-  myWGet() { busybox wget "$@"; }
+  myWGet() { "$BUSYBOX" wget "$@"; }
 else
    myWGet() { wget "$@"; }
 fi;
@@ -299,3 +311,5 @@ if [ -n "$LogFile" ]; then
   set +x;
   exec 1>&3 2>&4 3>&- 4>&-;
 fi;
+
+exit 0;
