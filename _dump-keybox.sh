@@ -69,6 +69,9 @@ myRemove() { if [ -n "$@" -a  -f "$@" ]; then rm -f "$@"; fi; }
 myClean() {
 # Remove temporary files
   myPrint "Removing temporary files";
+  if [ -n "$myKB" -a "$myKB" != "$KB" ]; then
+    myRemove "$myKB";
+  fi;
   myRemove "$TMP";
   myRemove "$P7B";
   myRemove "$CER";
@@ -83,7 +86,7 @@ PWD=$(pwd);
 myPrint "Arguments 0=$0, 1=$1, pwd=$PWD";
 DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");
-if [ -z "$DIR" -o "$DIR" == "/" -o "$DIR" == "/data/data/com.mixplorer/cache"  ]; then
+if [ -z "$DIR" -o "$DIR" == "/" -o "$DIR" == "/data/data/com.mixplorer/cache" ]; then
   DIR="$PWD";
 fi;
 if [ -z "$DIR -o "$DIR" == "/"" ]; then
@@ -102,29 +105,33 @@ fi;
 # Check for root permissions
 WHOAMI="$(whoami 2>/dev/null)";
 myPrint "USER=$USER, whoami=$WHOAMI";
-#if [ "$USER" != "root" -a "$WHOAMI" != "root" ]; then
-#  myWarn "root permissons missing";
-#fi;
+if [ "$USER" != "root" -a "$WHOAMI" != "root" ]; then
+  myWarn "root permissons not provided";
+fi;
 
 # Check for KB file to dump
 LOCALKB="$DIR/keybox.xml";
 if [ -n "$1" ]; then
   KB="$1";
+  myKB="$KB";
 elif [ -f "$LOCALKB" ]; then
   KB="$LOCALKB";
+  myKB="$KB";
 else
   KB="/data/adb/tricky_store/keybox.xml";
+  myKB="$LOCALKB";
+  su -c "cp $KB $myKB";
 fi;
 
 myPrint "KeyBox file: $KB";
-if [ ! -f "$KB" ]; then
+if [ ! -f "$myKB" ]; then
   myError "$KB file to dump not found";
 fi;
 
 # Reformat KB
 TMP="_keybox.tmp.txt";
 rm -f "$TMP";
-cat "$KB" | \
+cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
   sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
   sed 's!^[ \t]*!!' >> "$TMP";
