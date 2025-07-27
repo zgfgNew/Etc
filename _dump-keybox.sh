@@ -51,6 +51,11 @@
 # In that case, script will not download but will use the provided status file.
 # Also, it won't delete that given status file, it will leave it and reuse for the next dumping.
 
+# Note:
+#
+# Script prints that the whole KB is revoked when at least one ECDSA certificate was found revoked.
+# Hence, if only RSA certificates are revoked, the KB will not be printed as revoked.
+
 # Resources:
 # https://tryigit.dev/android-keybox-attestation-analysis/
 # https://docs.openssl.org/3.4/man1/openssl/
@@ -75,10 +80,13 @@ myClean() {
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 
 # Check for working directory
-DIR=$pwd;
+DIR="$0";
+DIR=$(dirname "$(readlink -f "$DIR")");
 if [ -z "$DIR" -o "$DIR" == "/" ]; then
   DIR="/sdcard/Download";
 fi;
+cd "$DIR";
+myPrint "Working directory: $(pwd)";
 
 # Debug logging
 #LogFile="$DIR/_dump-keybox.log";
@@ -86,9 +94,6 @@ if [ -n "$LogFile" ]; then
   exec 3>&1 4>&2 2>$LogFile 1>&2;
   set -x;
 fi;
-
-cd "$DIR";
-myPrint "Working directory: $(pwd)";
 
 # Check for root permissions
 #if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
@@ -159,6 +164,15 @@ cat "$CER" | sed 's/^[ \t]*//' | \
   sed 's/^/  /' | sed 's/^[ ]*Certificate:/\nCERTIFICATE:/' >> "$TXT";
 echo "" >> "$TXT";
 
+# Extract Algorithms
+AlgorithmsList=$(cat "$TXT" | grep 'Public Key Algorithm:' | \
+  sed 's/^.*Public Key Algorithm://' | sed 's/^[ ]*//' | sed 's/ /_/g');
+
+if [ -z "$AlgorithmsList" ]; then
+  myWarn "Public Key Algorithms not extracted" >> "$TXT";
+  echo "" >> "$TXT";
+fi;
+
 # Extract Subjects
 SubjectList=$(cat "$TXT" | grep 'Subject:' | \
   sed 's/^.*Subject://' | sed 's/^[ ]*//' | sed 's/ /_/g');
@@ -176,8 +190,8 @@ for Subject in $SubjectList; do
     sed 's/^.*CN=//' | sed 's/_/ /g' | sed 's/^[ ]*//');
   AOSP=$(echo "$CN" | grep 'Android.*Software Attestation');
   if [ -n "$AOSP" ]; then
+    myWarn "Certificate $i is AOSP type - COMMON NAME: $CN" >> "$TXT";
     (( J = i ));
-    myWarn "Certificate $J is AOSP type - COMMON NAME: $CN" >> "$TXT";
   fi;
 done;
 if (( J > 0 )); then
@@ -188,7 +202,8 @@ fi;
 SNList=$(cat "$TXT" | grep 'Serial Number:' | \
   sed 's/^.*Serial Number://' | sed 's/(.*$//' | \
   sed 's/[ :]//g' | sed 's/0x//' | sed 's/^[0]*//');
-echo "Serial Numbers:\n$SNList" >> "$TXT";
+echo "Serial Numbers:" >> "$TXT";
+echo "$SNList" >> "$TXT";
 echo "" >> "$TXT";
 
 if [ -z "$SNList" ]; then
@@ -226,8 +241,8 @@ for NA in $NAList; do
   NAEpoch=$(myDate -d "$NA" +"%s");
   NAYear=$(myDate -d "$NA" +"%Y");
   if (( Year >= NAYear )) && (( Epoch > NAEpoch )); then
+    myWarn "Certificate $i has expired - NOT AFTER: $NA" >> "$TXT";
     (( K = i ));
-    myWarn "Certificate $K has expired - NOT AFTER: $NA" >> "$TXT";
   fi;
 done;
 if (( K > 0 )); then
@@ -246,8 +261,14 @@ for SN in $SNList; do
   (( i++ ));
   Revoked=$(cat "$JSON" | grep -w "$SN");
   if [ -n "$Revoked" ]; then
+    myWarn "Certificate $i is revoked - SERIAL NUMBER: $SN" >> "$TXT";
     (( L = i ));
-    myWarn "Certificate $L is revoked - SERIAL NUMBER: $SN" >> "$TXT";
+    set -- $AlgorithmsList;
+    Algorithm="$(eval echo \${$i})";
+    ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
+    if [ -n "$ECDSA" ]; then
+      (( M = i ));
+    fi;
   fi;
 done;
 if (( L > 0 )); then
@@ -260,7 +281,7 @@ else
   myPrint "KeyBox has not expired" >> "$TXT";
 fi;
 
-if (( L > 0 )); then
+if (( M > 0 )); then
   myWarn "KeyBox is REVOKED" >> "$TXT";
 elif (( J > 0 )); then
   myWarn "KeyBox is AOSP type" >> "$TXT";
