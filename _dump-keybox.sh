@@ -36,7 +36,7 @@
 # Call with bash shell, like:
 # bash ./_dump-keybox <KB-FILE>
 
-# Public revocation json status list
+# Public revocation json status list:
 #
 # If local _status.json file is not provided, script will download the status from:
 # https://android.googleapis.com/attestation/status
@@ -52,7 +52,6 @@
 # Also, it won't delete that given status file, it will leave it and reuse for the next dumping.
 
 # Note:
-#
 # Script prints that the whole KB is revoked when at least one ECDSA certificate was found revoked.
 # Hence, if only RSA certificates are revoked, the KB will not be printed as revoked.
 
