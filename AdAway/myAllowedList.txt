@@ -1,1 +1,21 @@
+#My Allowed hosts souurce file
 
+# MIUI
+miuipolska.pl
+api.micloud.xiaomi.net
+sgpac.account.xiaomi.com
+connect.rom.miui.com
+update.miui.com
+
+# Magisk
+topjohnwu.github.io
+
+# ZG WiFi
+zgwlc.zagreb.hr
+
+# YouTube,, Twitter, etc
+s.youtube.com
+t.co
+developers.google.com
+bit.ly
+*.optimizely.com
