@@ -1,0 +1,21 @@
+On-line PEM decoders:
+Open keybox.xml as text, copy & paste -----BEGIN CERTIFICATE----- *** -----END CERTIFICATE----- from <Certificate format="pem"> *** </Certificate>https://ssl-tools.net/certificate-decoder
+https://www.sslchecker.com/certdecoder
+https://comodosslstore.com/ssltools/cert-decoder.php
+
+Covert keybox.xml to keybox.p7b:
+https://www.sslshopper.com/ssl-converter.html
+
+Convert keybox.p7b to keybox.cer:
+openssl pkcs7 -print_certs -in C:\Temp\keybox.p7b -out C:\Temp\keybox.cer
+
+Compare keybox.xml with keybox.cer in Notebook++
+Rename keybox.cer to keybox.cer.txt to read on the phone
+
+Download/instal OpenSSL for Windows:
+https://slproweb.com/products/Win32OpenSSL.html
+
+Check for revoked certificates (Serial Numbers) at:
+https://android.googleapis.com/attestation/status
+
+
