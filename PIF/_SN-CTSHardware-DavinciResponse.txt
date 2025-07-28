@@ -1,0 +1,13 @@
+{
+  "apkCertificateDigestSha256": [
+    "/zjHvW5D0vMAQ78JM2p2uWx9XLBnXWGIsg7yiyrP7ec\u003d"
+  ],
+  "apkDigestSha256": "DptbkXD9gp0gJo6lxUSvpwb8DfNB29O7WvBnFbl4P9I\u003d",
+  "apkPackageName": "com.henrikherzig.playintegritychecker",
+  "basicIntegrity": true,
+  "ctsProfileMatch": true,
+  "evaluationType": "BASIC,HARDWARE_BACKED",
+  "nonce": "Mjc0ZWIzN2YtMGMzYi00ZjNlLWJiZWUtNTZiYzRkNzg4Nzkw",
+  "timestampMs": 1737822066364,
+  "deprecationInformation": "The app is allowlisted to use the SafetyNet Attestation API until the full turndown: https://g.co/play/safetynet-timeline."
+}
