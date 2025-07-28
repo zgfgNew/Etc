@@ -83,7 +83,7 @@ myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 
 # Check for working directory
 PWD=$(pwd);
-myPrint "Arguments 0=$0, 1=$1, pwd=$PWD";
+myPrint "Arguments 0=$0, @=$@, pwd=$PWD";
 DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");
 if [ -z "$DIR" -o "$DIR" == "/" -o "$DIR" == "/data/data/com.mixplorer/cache" ]; then
@@ -111,7 +111,7 @@ fi;
 
 # Check for KB file to dump
 LOCALKB="$DIR/keybox.xml";
-if [ -n "$1" ]; then
+if [ -n "$1" -a -f "$1" ]; then
   KB="$1";
   myKB="$KB";
 elif [ -f "$LOCALKB" ]; then
