@@ -62,10 +62,10 @@ for FIELD in $ALLFIELDS; do
 done;
 
 # my_migrate.sh changes
-ADDFIELDS="_ORIGINAL_FIRST_API_LEVEL _DUMP_SOURCE";
-for FIELD in $ADDFIELDS; do
-  eval $FIELD=\"$(grep_get_json $FIELD)\";
-done;
+# ADDFIELDS="_ORIGINAL_FIRST_API_LEVEL _DUMP_SOURCE";
+# for FIELD in $ADDFIELDS; do
+#   eval $FIELD=\"$(grep_get_json $FIELD)\";
+# done;
 
 if [ -n "$ID" ] && ! grep_check_json build.id; then
   item 'Simple entry ID found, changing to ID field and "*.build.id" property ...';
@@ -158,6 +158,7 @@ verboseLogs=3;
 ### ### ### ### ### ### ### ### ### ###
 
 [ "$INSTALL" ] || item "Writing fields and properties to updated custom.pif.json ...";
+[ "$ADVANCED" ] && item "Adding Advanced Settings entries ...";
 
 (echo "{";
 echo "  // Build Fields";
@@ -166,10 +167,10 @@ for FIELD in $ALLFIELDS; do
 done;
 
 # my_migrate.sh changes
-#echo "$N  // Additional Fields";
-#for FIELD in $ADDFIELDS; do
-#  eval echo '\ \ \ \ \"$FIELD\": \"'\$#$FIELD'\",';
-#done;
+echo "$N  // Additional Fields";
+for FIELD in $ADDFIELDS; do
+  eval echo '\ \ \ \ \"$FIELD\": \"'\$$FIELD'\",';
+done;
 
 echo "$N  // System Properties";
 echo '    "*.build.id": "'$ID'",';
