@@ -1,0 +1,154 @@
+{
+    "sources": [
+        {
+            "label": "4PDA Hosts",
+            "url": "https:\/\/schakal.ru\/hosts\/hosts.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "AdAway official hosts",
+            "url": "https:\/\/adaway.org\/hosts.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "AdGuard DNS",
+            "url": "https:\/\/raw.githubusercontent.com\/r-a-y\/mobile-hosts\/master\/AdguardDNS.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "FadeMind hosts",
+            "url": "https:\/\/raw.githubusercontent.com\/FadeMind\/hosts.extras\/master\/add.2o7Net\/hosts",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "GoodbyeAds Xiaomi extension",
+            "url": "https:\/\/raw.githubusercontent.com\/jerryn70\/GoodbyeAds\/master\/Extension\/GoodbyeAds-Xiaomi-Extension.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "Hostsfile.org hosts",
+            "url": "https:\/\/www.hostsfile.org\/Downloads\/hosts.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "Pete Lowe blocklist hosts",
+            "url": "https:\/\/pgl.yoyo.org\/adservers\/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "PolishFiltersTeam KADhosts",
+            "url": "https:\/\/raw.githubusercontent.com\/PolishFiltersTeam\/KADhosts\/master\/KADhosts.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "Someonewhocares hosts",
+            "url": "https:\/\/someonewhocares.org\/hosts\/hosts",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "StevenBlack Alternate hosts",
+            "url": "https:\/\/raw.githubusercontent.com\/StevenBlack\/hosts\/master\/alternates\/gambling-porn\/hosts",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "StevenBlack Unified hosts",
+            "url": "https:\/\/raw.githubusercontent.com\/StevenBlack\/hosts\/master\/hosts",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "Winhelp2002 hosts",
+            "url": "https:\/\/winhelp2002.mvps.org\/hosts.txt",
+            "enabled": true,
+            "allow": false,
+            "redirect": false
+        },
+        {
+            "label": "myAllowedList local",
+            "url": "content:\/\/com.android.externalstorage.documents\/document\/primary%3AXiaomi%20Lisa%2FBackup%2FAdAway%2FmyAllowedList.txt",
+            "enabled": false,
+            "allow": true,
+            "redirect": false
+        },
+        {
+            "label": "myBlockedList local",
+            "url": "content:\/\/com.android.externalstorage.documents\/document\/primary%3AXiaomi%20Lisa%2FBackup%2FAdAway%2FmyBlockedList.txt",
+            "enabled": false,
+            "allow": false,
+            "redirect": false
+        }
+    ],
+    "blocked": [],
+    "allowed": [
+        {
+            "host": "bit.ly",
+            "enabled": true
+        },
+        {
+            "host": "s.youtube.com",
+            "enabled": true
+        },
+        {
+            "host": "miuipolska.pl",
+            "enabled": true
+        },
+        {
+            "host": "api.micloud.xiaomi.net",
+            "enabled": true
+        },
+        {
+            "host": "sgpac.account.xiaomi.com",
+            "enabled": true
+        },
+        {
+            "host": "connect.rom.miui.com",
+            "enabled": true
+        },
+        {
+            "host": "update.miui.com",
+            "enabled": true
+        },
+        {
+            "host": "topjohnwu.github.io",
+            "enabled": true
+        },
+        {
+            "host": "zgwlc.zagreb.hr",
+            "enabled": true
+        },
+        {
+            "host": "t.co",
+            "enabled": true
+        },
+        {
+            "host": "developers.google.com",
+            "enabled": true
+        },
+        {
+            "host": "*.optimizely.com",
+            "enabled": true
+        }
+    ],
+    "redirected": []
+}

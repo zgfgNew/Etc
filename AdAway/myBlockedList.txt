@@ -1,0 +1,3 @@
+#Example blocked hosts souurce file
+
+#0.0.0.0 adservice.google.com

@@ -1,0 +1,6 @@
+#Example redirected hosts souurce file
+
+#172.217.16.34 adservice.google.com
+
+#104.20.88.82 www.jutarnji.hr
+#193.25.220.68 www.vecernji.hr
