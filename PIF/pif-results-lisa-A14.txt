@@ -1,7 +1,7 @@
 Play Integrity attestation results (on my A14 = SDK API level 34 Lisa)
 Jul 29, 2025
 
-With Pixel QPR1 Beta3 prints vs Good Samsung A8 private prints (good for Wallet) and Regular Xiaomi A14 private prints (Strong with Loophole (0,0) method), and with a valid keybox
+With Pixel QPR1 Beta3 prints vs Good Samsung A8 private prints (good for Wallet) and Regular Xiaomi A14 prints (Strong with Loophole (0,0) method), and with a valid keybox
 
 (X,Y): spoofProvider X, spoofVendingSdk Y
 
@@ -9,28 +9,28 @@ SDK 32: <A13
 SDK 33+: A13+
 
 Good private prints (0,0);
-Bad private prints (0,0):
-Pixel Beta (0,0):
+Pixel Beta prints (0,0):
+Regular prints (0,0):
 SDK 34: A13+
 MEETS_BASIC_INTEGRITY
 MEETS_DEVICE_INTEGRITY
 
 Good private prints (0,1), (1,1):
-Pixel Beta (0,1):
+Pixel Beta prints (0,1):
 SDK 32: <A13
 MEETS_BASIC_INTEGRITY
 MEETS_DEVICE_INTEGRITY
 
 Not sure should I be having MEETS_STRONG_INTEGRITY for Good private prints with "spoofProvider": "0", "spoofVendingSdk": "1" (01_32, <A13)?
 
-Pixel Beta (1,1):
-Bad private prints (0,1), (1,1):
+Pixel Beta prints (1,1):
+Regular prints (0,1), (1,1):
 SDK 32: <A13
 MEETS_BASIC_INTEGRITY
 
 Good private prints (1,0):
-Bad private prints (1,0):
-Pixel Beta (1,0):
+Pixel Beta  prints (1,0):
+Regular prints (1,0):
 SDK 34: A13+
 MEETS_BASIC_INTEGRITY
 MEETS_DEVICE_INTEGRITY
