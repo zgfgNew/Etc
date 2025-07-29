@@ -174,7 +174,7 @@ myPrint "KeyBox file: $KB" >> "$TXT";
 
 cat "$CER" | sed 's/^[ \t]*//' | \
   sed '/^Serial Number/N;s/:[ \t]*\n/: /' | \
-  grep -Es '^Certificate:|^Serial Number:|^Issuer:|^Not After|^Subject:|^Public Key Algorithm:|CA:' | \
+  grep -Es '^Certificate:|^Serial Number:|^Issuer:|^Not Before|^Not After|^Subject:|^Public Key Algorithm:|CA:' | \
   sed 's/^Not After :/Not After:/' | \
   sed 's/^/  /' | sed 's/^[ ]*Certificate:/\nCERTIFICATE:/' >> "$TXT";
 echo "" >> "$TXT";
