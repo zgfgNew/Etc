@@ -1,4 +1,4 @@
-// Logcat for Play Integrity attestation, for <A13 (on my A14 Lisa)
+// Logcat for Play Integrity attestation, for <A13 (on my A14 = SDK API level 34 Lisa)
 // With Pixel QPR1 Beta3 prints "spoofProvider": "0", "spoofVendingSdk": "1", and valid keybox
 
 07-29 02:22:19.857 20878 20878 D PIF/Native: Read from file descriptor for 'dex' -> 20380 bytes

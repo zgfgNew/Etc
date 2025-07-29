@@ -1,4 +1,4 @@
-// Play Integrity attestation verdict for <A13 (on my A14 Lisa)
+// Play Integrity attestation verdict for <A13 (on my A14 = SDK API level 34 Lisa)
 // With Pixel QPR1 Beta3 prints "spoofProvider": "0", "spoofVendingSdk": "1", and valid keybox
 
 {
