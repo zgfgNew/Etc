@@ -1,7 +1,10 @@
 Play Integrity attestation results (on my A14 = SDK API level 34 Lisa)
 Jul 30, 2025
 
-With Pixel QPR1 Beta3 prints vs Good Samsung A8 private prints (good for Wallet) and Regular Xiaomi A14 prints (Strong with Loophole (0,0) method)
+Good private prints: rare, good for Wallet (from Samsung A8)
+Pixel Beta prints: from A16 QPR Beta and Canary ROMs
+Regular prints: other correctly extracted from official ROMs
+
 Valid keybox, Not Before Sep 17, 2022
 
 (X,Y): spoofProvider X, spoofVendingSdk Y
