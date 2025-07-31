@@ -258,7 +258,7 @@ if [ -z "$NAList" ]; then
 fi;
 
 # Check Not After dates
-(( i = 0 )); (( K = i )); (( KEC = i ));
+(( i = 0 )); (( K = i ));
 for NA in $NAList; do
   (( i++ ));
   NA=$(echo "$NA" | sed 's/_/ /g');
@@ -271,7 +271,7 @@ for NA in $NAList; do
     Algorithm="$(eval echo \${$i})";
     ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
     if [ -n "$ECDSA" ]; then
-      (( KEC = i ));
+      NAExpired=$NA;
     fi;
   fi;
 done;
@@ -355,11 +355,8 @@ fi;
 myPrint "KeyBox valid since $NBBest" >> "$TXT";
 myPrint "KeyBox valid until $NABest" >> "$TXT";
 
-if (( KEC > 0 )); then
-  set -- $NAList;
-  NA="$(eval echo \${$KEC})";
-  NA=$(echo "$NA" | sed 's/_/ /g');
-  myWarn "KeyBox has EXPIRED on $NA" >> "$TXT";
+if [ -n "$NAExpired" ]; then
+  myWarn "KeyBox has EXPIRED on $NAExpired" >> "$TXT";
 else
   myPrint "KeyBox has not expired" >> "$TXT";
 fi;
