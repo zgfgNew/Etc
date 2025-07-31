@@ -174,7 +174,9 @@ if [ ! -f "$CER" ]; then
 fi;
 
 # Extract info from KB to text file
-TXT="_keybox.txt";
+Name=$(echo "$myKB" | sed 's!.xml[ \t]*$!!');
+TXT="$Name.txt";
+myPrint "Dump file: $TXT";
 rm -f "$TXT";
 myPrint "KeyBox file: $KB" >> "$TXT";
 
