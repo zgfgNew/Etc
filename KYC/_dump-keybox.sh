@@ -143,7 +143,7 @@ fi;
 
 Begin=$(cat "$TMP" | grep 'BEGIN EC PRIVATE KEY')
 End=$(cat "$TMP" | grep 'END EC PRIVATE KEY')
-if [ -z "$Begin" -a -z "$End" ]; then
+if [ -z "$Begin" -o -z "$End" ]; then
   myError "Private EC Key not found";
 fi;
 
