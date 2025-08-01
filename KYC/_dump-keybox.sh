@@ -83,7 +83,8 @@ myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 
 # Check for working directory
 PWD=$(pwd);
-myPrint "Arguments 0=$0, @=$@, pwd=$PWD";
+myPrint "SHELL=$SHELL, pwd=$PWD";
+myPrint "Arguments 0=$0, @=$@";
 DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");
 if [ -z "$DIR" -o "$DIR" == "/" -o "$DIR" == "/data/data/com.mixplorer/cache" ]; then
