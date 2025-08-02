@@ -124,14 +124,23 @@ else
   su -c "cp $KB $myKB";
 fi;
 
-myPrint "KeyBox file: $KB";
 if [ ! -f "$myKB" ]; then
   myError "$KB file to dump not found";
 fi;
 
 # Reformat KB
+Encoding=$(file -b "$myKB" | sed 's! text$!!');
+myPrint "KeyBox file: $KB, Encoding=$Encoding";
+
 TMP="_keybox.tmp.txt";
 rm -f "$TMP";
+if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "data" -a "$Encoding" != "UTF-8" ]; then
+  iconv -f "$Encoding" -t UTF-8 "$myKB" >> "$TMP";
+  mv "$TMP" "$myKB";
+  Encoding=$(file -b "$myKB");
+  myPrint "KeyBox file: $KB, converted to $Encoding";
+fi;
+
 cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
   sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
