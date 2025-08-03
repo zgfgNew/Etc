@@ -76,7 +76,7 @@ myClean() {
   myRemove "$P7B";
   myRemove "$CER";
 #  myRemove "$TXT";
-#  deleteJSON="";
+  deleteJSON="";
   if [ -n "$deleteJSON" ]; then myRemove "$JSON"; fi;
 }
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
@@ -134,12 +134,15 @@ myPrint "KeyBox file: $KB, Encoding=$Encoding";
 
 TMP="_keybox.tmp.txt";
 rm -f "$TMP";
-#if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "data" -a "$Encoding" != "UTF-8" ]; then
-#  iconv -f "$Encoding" -t UTF-8 "$myKB" >> "$TMP";
-#  mv "$TMP" "$myKB";
-#  Encoding=$(file -b "$myKB");
-#  myPrint "KeyBox file: $KB, converted to $Encoding";
-#fi;
+if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "ASCII" -a "$Encoding" != "UTF-8" ]; then
+  iconv -t ASCII "$myKB" >> "$TMP";
+  Encoding=$(file -b "$TMP");
+  if [ -z "$Encoding" -o "$Encoding" == "empty" ]; then
+    myError "Failed to convert to UTF-8 $KB";
+  fi;
+  mv "$TMP" "$myKB";
+  myPrint "KeyBox file: $KB, converted to $Encoding";
+fi;
 
 cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
