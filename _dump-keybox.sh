@@ -83,7 +83,8 @@ myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 
 # Check for working directory
 PWD=$(pwd);
-myPrint "Arguments 0=$0, @=$@, pwd=$PWD";
+myPrint "SHELL=$SHELL, pwd=$PWD";
+myPrint "Arguments 0=$0, @=$@";
 DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");
 if [ -z "$DIR" -o "$DIR" == "/" -o "$DIR" == "/data/data/com.mixplorer/cache" ]; then
@@ -106,7 +107,7 @@ fi;
 WHOAMI="$(whoami 2>/dev/null)";
 myPrint "USER=$USER, whoami=$WHOAMI";
 if [ "$USER" != "root" -a "$WHOAMI" != "root" ]; then
-  myWarn "root permissons not provided";
+  myWarn "Root permissons not provided";
 fi;
 
 # Check for KB file to dump
@@ -123,21 +124,43 @@ else
   su -c "cp $KB $myKB";
 fi;
 
-myPrint "KeyBox file: $KB";
 if [ ! -f "$myKB" ]; then
   myError "$KB file to dump not found";
 fi;
 
 # Reformat KB
+Encoding=$(file -b "$myKB" | sed 's! text$!!');
+myPrint "KeyBox file: $KB, Encoding=$Encoding";
+
+# Android shell commands file -b and iconv (also in Termux) support only two encodings types: ASCII or data,
+# treating UTF-8 files as ASCII and other encodings (like UTF-16 LE BOM, etc) as data.
+# Also, iconv fails to convert data to ASCII.
+# Tricky Store, Key Attestation, etc, require UTF-8 file encoding.
 TMP="_keybox.tmp.txt";
 rm -f "$TMP";
+if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding" != "ASCII" ]; then
+  iconv -t ASCII "$myKB" >> "$TMP";
+  Encoding=$(file -b "$TMP");
+  if [ -z "$Encoding" -o "$Encoding" == "empty" ]; then
+    myError "Failed to convert $KB to UTF-8";
+  fi;
+  mv "$TMP" "$myKB";
+  myPrint "KeyBox file: $KB converted to $Encoding";
+fi;
+
 cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
   sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
   sed 's!^[ \t]*!!' >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
-  myError "failed to reformat $KB";
+  myError "Failed to reformat $KB";
+fi;
+
+Begin=$(cat "$TMP" | grep 'BEGIN EC PRIVATE KEY')
+End=$(cat "$TMP" | grep 'END EC PRIVATE KEY')
+if [ -z "$Begin" -o -z "$End" ]; then
+  myError "Private EC Key not found";
 fi;
 
 # Check for OpenSSL
@@ -155,7 +178,7 @@ rm -f "$P7B";
 myOpenSSL crl2pkcs7 -nocrl -certfile "$TMP" -out "$P7B";
 
 if [ ! -f "$P7B" ]; then
-  myError "failed to convert $KB to pkcs7";
+  myError "Failed to convert $KB to pkcs7";
 fi;
 
 # Dump KB to CER format
@@ -164,11 +187,13 @@ rm -f "$CER";
 myOpenSSL pkcs7 -print_certs -text -in "$P7B" -out "$CER";
 
 if [ ! -f "$CER" ]; then
-  myError "failed to dump $KB";
+  myError "Failed to dump $KB";
 fi;
 
 # Extract info from KB to text file
-TXT="_keybox.txt";
+Name=$(echo "$myKB" | sed 's!.xml[ \t]*$!!');
+TXT="$Name.txt";
+myPrint "Dump file: $TXT";
 rm -f "$TXT";
 myPrint "KeyBox file: $KB" >> "$TXT";
 
@@ -261,6 +286,12 @@ for NA in $NAList; do
   if (( Year >= NAYear )) && (( Epoch > NAEpoch )); then
     myWarn "Certificate $i has expired - NOT AFTER: $NA" >> "$TXT";
     (( K = i ));
+    set -- $AlgorithmsList;
+    Algorithm="$(eval echo \${$i})";
+    ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
+    if [ -n "$ECDSA" ]; then
+      NAExpired=$NA;
+    fi;
   fi;
 done;
 if (( K > 0 )); then
@@ -274,7 +305,7 @@ if [ ! -f "$JSON" ]; then
   myWGet -q -O "$JSON" --no-check-certificate --no-cache --header="Cache-Control: max-age=80" https://android.googleapis.com/attestation/status 2>&1 || myError "failed to downolad revoked certificates list";
 fi;
 
-(( i = 0 )); (( L = i ));
+(( i = 0 )); (( L = i )); (( LEC = i ));
 for SN in $SNList; do
   (( i++ ));
   Revoked=$(cat "$JSON" | grep -w "$SN");
@@ -285,7 +316,7 @@ for SN in $SNList; do
     Algorithm="$(eval echo \${$i})";
     ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
     if [ -n "$ECDSA" ]; then
-      (( M = i ));
+      (( LEC = i ));
     fi;
   fi;
 done;
@@ -293,13 +324,63 @@ if (( L > 0 )); then
   echo "" >> "$TXT";
 fi;
 
-if (( K > 0 )); then
-  myWarn "KeyBox has EXPIRED" >> "$TXT";
+# Extract Not Before dates
+NBList=$(cat "$TXT" | grep 'Not Before:' | \
+  sed 's/^.*Not Before://' | sed 's/^[ ]*//' | \
+  sed 's/ G.*$//' | sed 's/ /_/g');
+
+if [ -z "$NBList" ]; then
+  myError "Not Before dates not extracted";
+fi;
+
+# Find Valid Since date
+(( i = 0 )); (( MEC = i ));
+for NB in $NBList; do
+  (( i++ ));
+  set -- $AlgorithmsList;
+  Algorithm="$(eval echo \${$i})";
+  ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
+  if [ -n "$ECDSA" ]; then
+    NB=$(echo "$NB" | sed 's/_/ /g');
+    NBEpoch=$(myDate -d "$NB" +"%s");
+    NBYear=$(myDate -d "$NB" +"%Y");
+    if (( MEC <= 0 )) || ((( NBYear >= BestYear )) && (( NBEpoch > BestEpoch ))); then
+      NBBest=$NB; (( MEC = i )); (( BestEpoch = NBEpoch )); (( BestYear = NBYear ));
+    fi;
+  fi;
+done;
+
+# Find Valid Until date
+(( i = 0 )); (( MEC = i ));
+for NA in $NAList; do
+  (( i++ ));
+  set -- $AlgorithmsList;
+  Algorithm="$(eval echo \${$i})";
+  ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
+  if [ -n "$ECDSA" ]; then
+    NA=$(echo "$NA" | sed 's/_/ /g');
+    NAEpoch=$(myDate -d "$NA" +"%s");
+    NAYear=$(myDate -d "$NA" +"%Y");
+    if (( MEC <= 0 )) || ((( NAYear <= BestYear )) && (( NAEpoch < BestEpoch ))); then
+      NABest=$NA; (( MEC = i )); (( BestEpoch = NAEpoch )); (( BestYear = NAYear ));
+    fi;
+  fi;
+done;
+
+if [ -z "$NABest" -o -z "$NBBest" ]; then
+  myError "No valid ECDSA certificate found";
+fi;
+
+myPrint "KeyBox valid since $NBBest" >> "$TXT";
+myPrint "KeyBox valid until $NABest" >> "$TXT";
+
+if [ -n "$NAExpired" ]; then
+  myWarn "KeyBox has EXPIRED on $NAExpired" >> "$TXT";
 else
   myPrint "KeyBox has not expired" >> "$TXT";
 fi;
 
-if (( M > 0 )); then
+if (( LEC > 0 )); then
   myWarn "KeyBox is REVOKED" >> "$TXT";
 elif (( J > 0 )); then
   myWarn "KeyBox is AOSP type" >> "$TXT";
