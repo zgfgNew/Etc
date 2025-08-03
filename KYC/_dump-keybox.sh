@@ -76,7 +76,7 @@ myClean() {
   myRemove "$P7B";
   myRemove "$CER";
 #  myRemove "$TXT";
-  deleteJSON="";
+#  deleteJSON="";
   if [ -n "$deleteJSON" ]; then myRemove "$JSON"; fi;
 }
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
@@ -132,16 +132,20 @@ fi;
 Encoding=$(file -b "$myKB" | sed 's! text$!!');
 myPrint "KeyBox file: $KB, Encoding=$Encoding";
 
+# Android shell commands file -b and iconv (also in Termux) support only two encodings types: ASCII or data,
+# treating UTF-8 files as ASCII and other encodings (like UTF-16 LE BOM, etc) as data.
+# Also, iconv fails to convert data to ASCII.
+# Tricky Store, Key Attestation, etc, require UTF-8 file encoding.
 TMP="_keybox.tmp.txt";
 rm -f "$TMP";
-if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "ASCII" -a "$Encoding" != "UTF-8" ]; then
+if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding" != "ASCII" ]; then
   iconv -t ASCII "$myKB" >> "$TMP";
   Encoding=$(file -b "$TMP");
   if [ -z "$Encoding" -o "$Encoding" == "empty" ]; then
-    myError "Failed to convert to UTF-8 $KB";
+    myError "Failed to convert $KB to UTF-8";
   fi;
   mv "$TMP" "$myKB";
-  myPrint "KeyBox file: $KB, converted to $Encoding";
+  myPrint "KeyBox file: $KB converted to $Encoding";
 fi;
 
 cat "$myKB" | \
