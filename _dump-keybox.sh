@@ -141,7 +141,7 @@ rm -f "$TMP";
 if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding" != "ASCII" ]; then
   iconv -t ASCII "$myKB" >> "$TMP";
   Encoding=$(file -b "$TMP");
-  if [ -z "$Encoding" -o "$Encoding" == "empty" ]; then
+  if [ -z "$Encoding" -o "$Encoding" == "empty" -o "$Encoding" == "data" ]; then
     myError "Failed to convert $KB to UTF-8";
   fi;
   mv "$TMP" "$myKB";
