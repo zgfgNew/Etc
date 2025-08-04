@@ -128,8 +128,19 @@ if [ ! -f "$myKB" ]; then
   myError "$KB file to dump not found";
 fi;
 
+# Check for ToyBox-Ext module
+TOYBOX=$(which toybox-ext);
+myPrint "toybox-ext=$TOYBOX";
+if [ -z "$TERMUX_VERSION" -a -n "$TOYBOX" ]; then
+  myFile() { "$TOYBOX" file "$@"; }
+  myIconv() { "$TOYBOX" iconv "$@"; }
+else
+  myFile() { file "$@"; }
+  myIconv() { iconv "$@"; }
+fi;
+
 # Reformat KB
-Encoding=$(file -b "$myKB" | sed 's! text$!!');
+Encoding=$(myFile -b "$myKB" | sed 's! text$!!');
 myPrint "KeyBox file: $KB, Encoding=$Encoding";
 
 # Android shell commands file -b and iconv (also in Termux) support only two encodings types: ASCII or data,
@@ -139,8 +150,8 @@ myPrint "KeyBox file: $KB, Encoding=$Encoding";
 TMP="_keybox.tmp.txt";
 rm -f "$TMP";
 if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding" != "ASCII" ]; then
-  iconv -t ASCII "$myKB" >> "$TMP";
-  Encoding=$(file -b "$TMP");
+  myIconv -t UTF-8 "$myKB" >> "$TMP";
+  Encoding=$(myFile -b "$TMP");
   if [ -z "$Encoding" -o "$Encoding" == "empty" -o "$Encoding" == "data" ]; then
     myError "Failed to convert $KB to UTF-8";
   fi;
@@ -250,6 +261,7 @@ if [ -z "$SNList" ]; then
   myError "Serial Numbers not extracted";
 fi;
 
+# Check for BusyBox
 BUSYBOX=$(which busybox);
 myPrint "busybox=$BUSYBOX";
 if [ -n "$BUSYBOX"  ]; then
