@@ -76,7 +76,7 @@ myClean() {
   myRemove "$P7B";
   myRemove "$CER";
 #  myRemove "$TXT";
-  deleteJSON="";
+#  deleteJSON="";
   if [ -n "$deleteJSON" ]; then myRemove "$JSON"; fi;
 }
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
