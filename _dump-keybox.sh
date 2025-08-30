@@ -76,7 +76,7 @@ myClean() {
   myRemove "$P7B";
   myRemove "$CER";
 #  myRemove "$TXT";
-#  deleteJSON="";
+  deleteJSON="";
   if [ -n "$deleteJSON" ]; then myRemove "$JSON"; fi;
 }
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
@@ -84,6 +84,7 @@ myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
 # Check for working directory
 PWD=$(pwd);
 myPrint "SHELL=$SHELL, pwd=$PWD";
+myPrint "PATH=$PATH";
 myPrint "Arguments 0=$0, @=$@";
 DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");

@@ -23,8 +23,15 @@ exec 4>&2 2>"$results" 3>&1 1>&2 ;
 dump_kb_script="$script_path/_dump-keybox.sh";
 [ ! -f "$dump_kb_script" -o ! -s "$dump_kb_script" ] && dump_kb_script="";
 
+# toDo: Testing, remove
+PKGS=/data/data/com.termux/files/usr/bin
+if [ -z $(echo $PATH | grep $PKGS) ]; then
+  export PATH=$PKGS:${PATH}
+fi
+
 echo "PID=$$" | tee -a "$results";
 echo "SHELL=$SHELL" | tee -a "$results";
+echo "PATH=$PATH" | tee -a "$results";
 echo "Arguments 0=$0, @=$@" | tee -a "$results";
 echo "script_path=$script_path" | tee -a "$results";
 echo "dump_kb_script=$dump_kb_script" | tee -a "$results";
