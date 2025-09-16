@@ -76,7 +76,7 @@ myClean() {
   myRemove "$P7B";
   myRemove "$CER";
 #  myRemove "$TXT";
-#  deleteJSON="";
+  deleteJSON="";
   if [ -n "$deleteJSON" ]; then myRemove "$JSON"; fi;
 }
 myError() { myWarn "ERROR: $@, cannot proceed"; myClean; exit 1; }
@@ -163,7 +163,8 @@ fi;
 cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
   sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
-  sed 's!^[ \t]*!!' >> "$TMP";
+  sed 's!^[ \t]*!!' | \
+  sed 's/<!--.*-->$//g' >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
   myError "Failed to reformat $KB";
