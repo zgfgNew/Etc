@@ -164,7 +164,7 @@ cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
   sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
   sed 's/<!--.*-->//g' | \
-  sed 's!^[ \t\n]*!!g'  >> "$TMP";
+  sed 's!^[ \t\n]*!!g' >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
   myError "Failed to reformat $KB";
