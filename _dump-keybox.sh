@@ -163,8 +163,8 @@ fi;
 cat "$myKB" | \
   sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
   sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
-  sed 's!^[ \t]*!!' | \
-  sed 's/<!--.*-->$//g' >> "$TMP";
+  sed 's/<!--.*-->//g' | \
+  sed 's!^[ \t\n]*!!g'  >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
   myError "Failed to reformat $KB";
