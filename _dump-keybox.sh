@@ -161,9 +161,12 @@ if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding"
 fi;
 
 cat "$myKB" | \
-  sed 's!">-----BEGIN!">\n-----BEGIN!g' | \
-  sed 's!CERTIFICATE-----</!CERTIFICATE-----\n</!g' | \
+  sed 's!">[ \t]*-----BEGIN!">\n-----BEGIN!g' | \
+  sed 's!CERTIFICATE-----[ \t]*<!CERTIFICATE-----\n<!g' | \
+  sed 's!KEY-----[ \t]*<!KEY-----\n<!g' | \
+  sed 's!>[ \t]*<!>\n<!g' | \
   sed 's/<!--.*-->//g' | sed 's!#.*$!!g' | \
+  sed 's/<Keybox DeviceID=".*">/<Keybox DeviceID="">/g' | \
   sed 's!^[ \t\r\n]*!!g' | grep . >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
