@@ -149,6 +149,7 @@ myPrint "KeyBox file: $KB, Encoding=$Encoding";
 # Also, iconv fails to convert data to ASCII.
 # Tricky Store, Key Attestation, etc, require UTF-8 file encoding.
 TMP="_keybox.tmp.txt";
+TMP="$myKB.tmp";  # Uncomment myRemove "$TMP" in Clean() to inspect the reformatted temporary copy
 rm -f "$TMP";
 if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding" != "ASCII" ]; then
   myIconv -t UTF-8 "$myKB" >> "$TMP";
@@ -161,10 +162,8 @@ if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding"
 fi;
 
 cat "$myKB" | \
-  sed 's!">[ \t]*-----BEGIN!">\n-----BEGIN!g' | \
-  sed 's!CERTIFICATE-----[ \t]*<!CERTIFICATE-----\n<!g' | \
-  sed 's!KEY-----[ \t]*<!KEY-----\n<!g' | \
-  sed 's!>[ \t]*<!>\n<!g' | \
+  sed 's!">[ \t]*-----!>\n-----!g' | sed 's!-----[ \t]*<!-----\n<!g' | \
+  sed 's!>[ \t]*<!>\n<!g' | sed 's![ \t]*>!>!g' | sed 's!<[ \t]*!<!g' | \
   sed 's/<!--.*-->//g' | sed 's!#.*$!!g' | \
   sed 's/<Keybox DeviceID=".*">/<Keybox DeviceID="">/g' | \
   sed 's!^[ \t\r\n]*!!g' | grep . >> "$TMP";
