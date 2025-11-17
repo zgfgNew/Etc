@@ -3,7 +3,7 @@
 # Crawl recursively to dump keybox files for Tricky Store module
 # zgfg @ xda © July 2025- All Rights Reserved
 
-echo "Crawl recursively to dump keybox files for Tricky Store module\n";
+echo "Crawl recursively to dump keybox files for Tricky Store modules";
 
 
 FOLDERS_DEPTH="3";  # Increase for crawling deeper to subfolders 
