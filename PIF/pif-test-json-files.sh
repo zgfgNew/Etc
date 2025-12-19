@@ -159,7 +159,7 @@ function f_test_yasnac()
   sleep $YASNAC_WAIT_VERDICT
   f_dump_xml "$yasnac_xml"
   f_kill_app $yasnac
-  logcat -d | grep PIF >> "$log"
+  logcat -d | grep -e PIF -e TrickyStore -e TEESimulator >> "$log"
 
   (( pass = 0 )); found=$(cat "$yasnac_xml" | grep "Pass")
   [ -n "$found" ] && (( pass = 1 ))
@@ -247,7 +247,7 @@ function f_test_aic()
   sleep 2
   f_dump_xml "$pi_xml"
   f_kill_app $aic
-  logcat -d | grep PIF >> "$log"
+  logcat -d | grep -e PIF -e TrickyStore -e TEESimulator >> "$log"
   
   f_read_integrities "$pi_xml" "yes"
   (( val = $? )); return $val
@@ -268,7 +268,7 @@ function f_test_spic()
   sleep $PI_WAIT_VERDICT
   f_dump_xml "$pi_xml"
   f_kill_app $spic
-  logcat -d | grep PIF >> "$log"
+  logcat -d | grep -e PIF -e TrickyStore -e TEESimulator >> "$log"
 
 # verdict not shown: deviceIntegrity, deviceRecognitionVerdict, etc, not available
   f_read_integrities "$pi_xml"
@@ -295,7 +295,7 @@ function f_test_picheck()
   sleep 2
   f_dump_xml "$pi_xml"
   f_kill_app $picheck
-  logcat -d | grep PIF >> "$log"
+  logcat -d | grep -e PIF -e TrickyStore -e TEESimulator >> "$log"
   
   f_read_integrities "$pi_xml" "yes"
   (( val = $? )); return $val
@@ -321,7 +321,7 @@ function f_test_iapi()
   sleep 2
   f_dump_xml "$pi_xml"
   f_kill_app $iapi
-  logcat -d | grep PIF >> "$log"
+  logcat -d | grep -e PIF -e TrickyStore -e TEESimulator >> "$log"
   
   f_read_integrities "$pi_xml" "yes"
   (( val = $? )); return $val
@@ -345,7 +345,7 @@ function f_test_tbchecker()
   sleep 2
   f_dump_xml "$pi_xml"
   f_kill_app $tbchecker
-  logcat -d | grep PIF >> "$log"
+  logcat -d | grep -e PIF -e TrickyStore -e TEESimulator -e TEESimulator >> "$log"
 
   local pass=$(cat "$pi_xml" | grep -o 'Pass' | wc -l)
   local fail=$(cat "$pi_xml" | grep -o 'Fail' | wc -l)
