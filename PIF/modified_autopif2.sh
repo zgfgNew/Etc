@@ -2,7 +2,7 @@
 
 if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
   echo "script needs root permissions";
-  exit 1;
+#  exit 1;
 fi;
 
 echo "Pixel Beta dumper custom.pif.json generator \
@@ -13,42 +13,55 @@ DIR="$0";
 DIR=$(dirname "$(readlink -f "$DIR")");
 cd "$DIR";
 
-if [ ! -f migrate.sh ]; then
-  echo "migrate.sh not found";
+if [ ! -f old_migrate.sh ]; then
+  echo "old_migrate.sh not found";
   exit 1;
 fi;
 
 item() { echo "\n- $@"; }
 
-# Switch to enable A16 Canary prints
-CANARY=1
+# Uncomment to enable A16 Canary prints
+#CANARY=1
 
 # Read RELEASE, INCREMENTAL, SECURITY_PATCH (and BETA_REL_DATE)
 # https://developer.android.com/topic/generic-system-image/releases#android-gsi-16
 # https://9to5google.com/2025/07/10/android-canary-channel-developer-previews/
 
+# Pixel Factory Images Tracker
+#https://t.me/pixelfactoryimagestracker
+
+# Pixel Canary Images
+#https://gist.github.com/ItzLevvie/1a82ba4b8c9e978baeea68342c1f92c5#file-readme-md
+
 if [ -n "$CANARY" ]; then
-  # A16 CANARY Jul 24:
+
+ # A16 QPR2 CANARY Dec 8:
   RELEASE="CANARY";
-  PREVIEW="A16-$RELEASE-Jul24";
-  BETA_REL_DATE="2025-07-24";
-  BETA_EXP_DATE="2025-09-04";
+  PREVIEW="A16-QPR2-$RELEASE-Dec8";
+  BETA_REL_DATE="2025-12-08";
+  BETA_EXP_DATE="2026-01-19";
 
-  ID="ZP11.250627.009";
-  INCREMENTAL="13818224";
-  SECURITY_PATCH="2025-07-05";
+  SECURITY_PATCH="2025-12-05";
+  ID="ZP11.251121.010";
+  INCREMENTAL="14518957";
+
 else
-  # A16 QPR1 3:
-  RELEASE="16";
-  PREVIEW="A$RELEASE-QPR1_3";
-  BETA_REL_DATE="2025-07-17";
-  BETA_EXP_DATE="2025-08-28";
 
-  ID="BP31.250610.004.A1";
-  INCREMENTAL="13770421";
-  ID="BP31.250610.004";
-  INCREMENTAL="13769805";
-  SECURITY_PATCH="2025-06-05";
+  # A16 QPR3 Beta 1:
+  RELEASE="16";
+  PREVIEW="A$RELEASE-QPR3-Beta1";
+  BETA_REL_DATE="2025-12-17";
+  BETA_EXP_DATE="2026-01-28";
+
+  SECURITY_PATCH="2025-12-05";
+  ID="CP1.251114.006​";
+  INCREMENTAL="14560987";
+
+# Only for Pixel 7a lynx
+#  SECURITY_PATCH="2025-11-05";
+#  ID="CP1.251114.006.A1";
+#  INCREMENTAL="14394155";
+
 fi
 
 item "PREVIEW: $PREVIEW, BETA_REL_DATE: $BETA_REL_DATE, BETA_EXP_DATE: $BETA_EXP_DATE";
@@ -68,8 +81,12 @@ Pixel_9a
 Pixel_9_Pro 
 Pixel_9_Pro_Fold 
 Pixel_9_Pro_XL 
+Pixel_10 
+Pixel_10_Pro 
+Pixel_10_Pro_XL 
+Pixel_10_Pro_Fold 
 Pixel_Fold 
-Pixel_Tablet";
+Pixel_Tablet ";
 
 DEVICE_LIST="oriole  
 raven 
@@ -85,8 +102,12 @@ tegu
 caiman 
 comet 
 komodo 
+frankel 
+blazer 
+mustang 
+rango 
 felix 
-tangorpro";
+tangorpro ";
 
 LIST_COUNT="$(echo "$MODEL_LIST" | wc -l)";
 item "LIST_COUNT: $LIST_COUNT";
@@ -127,9 +148,9 @@ while ((( INDEX++ < LIST_COUNT ))); do
 }
 EOF
 
-  item "Converting pif.json to custom.pif.json with migrate.sh:";
+  item "Converting pif.json to custom.pif.json with old_migrate.sh:";
   rm -f custom.pif.json;
-  sh ./migrate.sh -i -f -a pif.json;
+  sh ./old_migrate.sh -i -f -a pif.json;
 
   sed -i "s;};\n  // Name: $NAME\n  // Beta Released: $BETA_REL_DATE\n  // Estimated Expiry: $BETA_EXP_DATE\n};" custom.pif.json;
   mv custom.pif.json "$NAME-custom.pif.json";
