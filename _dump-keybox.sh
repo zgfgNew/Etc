@@ -162,10 +162,13 @@ if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding"
 fi;
 
 cat "$myKB" | \
-  sed 's!">[ \t]*-----!">\n-----!g' | 
-  sed 's!-----[ \t]*</!-----\n</!g' | \
-  sed 's!>[ \t]*<!>\n<!g' | 
-  sed 's![ \t]*>!>!g' | sed 's!<[ \t]*!<!g' | \
+  sed 's!">[ \t\r]*-----!">\n-----!g' | \
+  sed 's!KEY-----[ \t\r]*!KEY-----\n!g' | \
+  sed 's!CERTIFICATE-----[ \t\r]*!CERTIFICATE-----\n!g' | \
+  sed 's![ \t\r]*-----END!\n-----END!g' | \
+  sed 's![ \t\r]*>!>!g' | sed 's!<[ \t\r]*!<!g' | \
+  sed 's!-----[ \t\r]*</!-----\n</!g' | \
+  sed 's!>[ \t\r]*<!>\n<!g' | \
   sed 's/<!--.*-->//g' | sed 's!#.*$!!g' | \
   sed 's/<Keybox DeviceID=".*">/<Keybox DeviceID="">/g' | \
   sed 's!^[ \t\r\n]*!!g' | grep . >> "$TMP";
@@ -177,7 +180,8 @@ fi;
 Begin=$(cat "$TMP" | grep 'BEGIN EC PRIVATE KEY')
 End=$(cat "$TMP" | grep 'END EC PRIVATE KEY')
 if [ -z "$Begin" -o -z "$End" ]; then
-  myError "Private EC Key not found";
+#  myError "Private EC Key not found";
+  myWarn "Private EC Key not found";
 fi;
 
 # Check for OpenSSL
@@ -386,7 +390,8 @@ for NA in $NAList; do
 done;
 
 if [ -z "$NABest" -o -z "$NBBest" ]; then
-  myError "No valid ECDSA certificate found";
+#  myError "No valid ECDSA certificate found";
+  myWarn "No valid ECDSA certificate found";
 fi;
 
 myPrint "KeyBox valid since $NBBest" >> "$TXT";
