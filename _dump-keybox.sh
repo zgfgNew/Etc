@@ -162,16 +162,18 @@ if [ "$myKB" == "$KB" -a -n "$Encoding" -a "$Encoding" != "UTF-8" -a "$Encoding"
 fi;
 
 cat "$myKB" | \
-  sed 's!">[ \t\r]*-----!">\n-----!g' | \
+  sed 's![ \t\r]*<[ \t\r]*!\n<!g' | \
+  sed 's![ \t\r]*">[ \t\r]*!">\n!g' | \
+  sed 's![ \t\r]*-----BEGIN!\n-----BEGIN!g' | \
+  sed 's![ \t\r]*-----END!\n-----END!g' | \
   sed 's!KEY-----[ \t\r]*!KEY-----\n!g' | \
   sed 's!CERTIFICATE-----[ \t\r]*!CERTIFICATE-----\n!g' | \
-  sed 's![ \t\r]*-----END!\n-----END!g' | \
-  sed 's![ \t\r]*>!>!g' | sed 's!<[ \t\r]*!<!g' | \
-  sed 's!-----[ \t\r]*</!-----\n</!g' | \
-  sed 's!>[ \t\r]*<!>\n<!g' | \
-  sed 's/<!--.*-->//g' | sed 's!#.*$!!g' | \
+  sed 's!-----[ \t\r]*!-----!g' | \
   sed 's/<Keybox DeviceID=".*">/<Keybox DeviceID="">/g' | \
-  sed 's!^[ \t\r\n]*!!g' | grep . >> "$TMP";
+  sed 's/<!--.*-->//g' | \
+  sed 's!#.*$!!g' | \
+  sed 's!^[ \t\r\n]*!!g' | \
+  grep . >> "$TMP";
 
 if [ ! -f "$TMP" ]; then
   myError "Failed to reformat $KB";
