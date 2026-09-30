@@ -57,7 +57,7 @@ function f_dump_kb()
 function f_process_folder()
 {
   local folder="$1";
-  local list=$( ls "$folder"/*.xml 2>/dev/null );
+  local list="$( ls "$folder"/*.xml 2>/dev/null )";
   [ -z "$list" ] && return;
 
   (( folders++ ));
