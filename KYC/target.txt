@@ -1,0 +1,32 @@
+# Xiaomi.eu HyperOS v2.016 ROM
+
+
+#android
+com.android.vending
+com.google.android.gms
+#com.google.android.gsf
+io.github.vvb2060.keyattestation
+#dev.keiji.deviceintegrity
+
+com.netflix.mediaclient
+com.google.android.contactkeys
+
+#com.revolut.revolut
+#io.github.qwq233.keyattestation
+
+#icu.nullptr.nativetest
+#io.github.vvb2060.mahoshojo
+#com.zhenxi.hunter
+#com.reveny.nativecheck
+#com.android.nativetest
+#io.liankong.riskdetector
+#luna.safe.luna
+
+
+# Testing
+
+#[AOSP-keybox.xml]  # Passing A13+ and <A13, but loosing Device Meets Security Requirements in Wallet
+[Inf_X608-keybox.xml]  # No use if same as the keybox.xml
+android
+com.google.android.gsf
+#io.github.vvb2060.keyattestation
