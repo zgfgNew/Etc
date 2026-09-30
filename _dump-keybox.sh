@@ -223,6 +223,7 @@ myPrint "KeyBox file: $KB" >> "$TXT";
 cat "$CER" | sed 's/^[ \t]*//' | \
   sed '/^Serial Number/N;s/:[ \t]*\n/: /' | \
   grep -Es '^Certificate:|^Serial Number:|^Issuer:|^Not Before|^Not After|^Subject:|^Public Key Algorithm:|CA:' | \
+  sed 's/^keyid://' | \
   sed 's/^Not After :/Not After:/' | \
   sed 's/^/  /' | sed 's/^[ ]*Certificate:/\nCERTIFICATE:/' >> "$TXT";
 echo "" >> "$TXT";
@@ -289,7 +290,7 @@ else
 fi;
 
 # Extract Not After dates
-UTC=$(myDate --utc);
+UTC=$(myDate -u);
 Epoch=$(myDate -D "$UTC" +"%s");
 Year=$(myDate -D "$UTC" +"%Y");
 NAList=$(cat "$TXT" | grep 'Not After:' | \
@@ -305,8 +306,8 @@ fi;
 for NA in $NAList; do
   (( i++ ));
   NA=$(echo "$NA" | sed 's/_/ /g');
-  NAEpoch=$(myDate -d "$NA" +"%s");
-  NAYear=$(myDate -d "$NA" +"%Y");
+  NAEpoch=$(myDate -u -d "$NA" +"%s");
+  NAYear=$(myDate -u -d "$NA" +"%Y");
   if (( Year >= NAYear )) && (( Epoch > NAEpoch )); then
     myWarn "Certificate $i has expired - NOT AFTER: $NA" >> "$TXT";
     (( K = i ));
@@ -315,6 +316,8 @@ for NA in $NAList; do
     ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
     if [ -n "$ECDSA" ]; then
       NAExpired=$NA;
+    else
+      NAExpiredRSA=$NA;
     fi;
   fi;
 done;
@@ -329,7 +332,7 @@ if [ ! -f "$JSON" ]; then
   myWGet -q -O "$JSON" --no-check-certificate --no-cache --header="Cache-Control: max-age=80" https://android.googleapis.com/attestation/status 2>&1 || myError "failed to downolad revoked certificates list";
 fi;
 
-(( i = 0 )); (( L = i )); (( LEC = i ));
+(( i = 0 )); (( L = i )); (( LEC = i )); (( LRSA = i ));
 for SN in $SNList; do
   (( i++ ));
   Revoked=$(cat "$JSON" | grep -w "$SN");
@@ -341,6 +344,8 @@ for SN in $SNList; do
     ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
     if [ -n "$ECDSA" ]; then
       (( LEC = i ));
+    else
+      (( LRSA = i ));
     fi;
   fi;
 done;
@@ -358,54 +363,68 @@ if [ -z "$NBList" ]; then
 fi;
 
 # Find Valid Since date
-(( i = 0 )); (( MEC = i ));
+(( i = 0 )); (( MEC = i )); (( MRSA = i ));
 for NB in $NBList; do
   (( i++ ));
   set -- $AlgorithmsList;
   Algorithm="$(eval echo \${$i})";
+  NB=$(echo "$NB" | sed 's/_/ /g');
+  NBEpoch=$(myDate -d "$NB" +"%s");
+  NBYear=$(myDate -d "$NB" +"%Y");
   ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
   if [ -n "$ECDSA" ]; then
-    NB=$(echo "$NB" | sed 's/_/ /g');
-    NBEpoch=$(myDate -d "$NB" +"%s");
-    NBYear=$(myDate -d "$NB" +"%Y");
     if (( MEC <= 0 )) || ((( NBYear >= BestYear )) && (( NBEpoch > BestEpoch ))); then
       NBBest=$NB; (( MEC = i )); (( BestEpoch = NBEpoch )); (( BestYear = NBYear ));
+    fi;
+  else
+    if (( MRSA <= 0 )) || ((( NBYear >= BestYearRSA )) && (( NBEpoch > BestEpochRSA ))); then
+      NBBestRSA=$NB; (( MRSA = i )); (( BestEpochRSA = NBEpoch )); (( BestYearRSA = NBYear ));
     fi;
   fi;
 done;
 
 # Find Valid Until date
-(( i = 0 )); (( MEC = i ));
+(( i = 0 )); (( MEC = i )); (( MRSA = i ));
 for NA in $NAList; do
   (( i++ ));
   set -- $AlgorithmsList;
   Algorithm="$(eval echo \${$i})";
+  NA=$(echo "$NA" | sed 's/_/ /g');
+  NAEpoch=$(myDate -d "$NA" +"%s");
+  NAYear=$(myDate -d "$NA" +"%Y");
   ECDSA=$(echo "$Algorithm" | grep 'id-ecPublicKey');
   if [ -n "$ECDSA" ]; then
-    NA=$(echo "$NA" | sed 's/_/ /g');
-    NAEpoch=$(myDate -d "$NA" +"%s");
-    NAYear=$(myDate -d "$NA" +"%Y");
     if (( MEC <= 0 )) || ((( NAYear <= BestYear )) && (( NAEpoch < BestEpoch ))); then
       NABest=$NA; (( MEC = i )); (( BestEpoch = NAEpoch )); (( BestYear = NAYear ));
+    fi;
+  else
+    if (( MRSA <= 0 )) || ((( NAYear <= BestYearRSA )) && (( NAEpoch < BestEpochRSA ))); then
+      NABestRSA=$NA; (( MRSA = i )); (( BestEpochRSA = NAEpoch )); (( BestYearRSA = NAYear ));
     fi;
   fi;
 done;
 
+UseNAExpired="$NAExpired"; (( UseLEC = LEC ));
 if [ -z "$NABest" -o -z "$NBBest" ]; then
-#  myError "No valid ECDSA certificate found";
-  myWarn "No valid ECDSA certificate found";
+  if [ -n "$NABestRSA" -a -n "$NBBestRSA" ]; then
+    NBBest="$NBBestRSA"; NABest="$NABestRSA";
+    UseNAExpired="$NAExpiredRSA"; (( UseLEC = LRSA ));
+  else
+#    myError "No valid ECDSA or RSA certificate found";
+    myWarn "No valid ECDSA or RSA certificate found";
+  fi;
 fi;
 
 myPrint "KeyBox valid since $NBBest" >> "$TXT";
 myPrint "KeyBox valid until $NABest" >> "$TXT";
 
-if [ -n "$NAExpired" ]; then
-  myWarn "KeyBox has EXPIRED on $NAExpired" >> "$TXT";
+if [ -n "$UseNAExpired" ]; then
+  myWarn "KeyBox has EXPIRED on $UseNAExpired" >> "$TXT";
 else
   myPrint "KeyBox has not expired" >> "$TXT";
 fi;
 
-if (( LEC > 0 )); then
+if (( UseLEC > 0 )); then
   myWarn "KeyBox is REVOKED" >> "$TXT";
 elif (( J > 0 )); then
   myWarn "KeyBox is AOSP type" >> "$TXT";
