@@ -1,5 +1,7 @@
 #!/system/bin/sh
 
+# https://github.com/Vagelis1608/get_the_canary_miner/tree/main/devices
+
 if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
   echo "script needs root permissions";
 #  exit 1;
@@ -30,53 +32,48 @@ item() { echo "\n- $@"; }
 # Pixel Canary Images
 #https://gist.github.com/ItzLevvie/1a82ba4b8c9e978baeea68342c1f92c5#file-readme-md
 
-# Uncomment to enable A16 Canary prints
+# Uncomment to enable A17 Canary prints
 #CANARY=1
 
 if [ -n "$CANARY" ]; then
 
-  # A16 CANARY Jun 3:
+  # A17 CANARY Aug 6:
   RELEASE="CANARY";
-  PREVIEW="A16-$RELEASE-Jun3";
-  BETA_REL_DATE="2026-06-03";
-  BETA_EXP_DATE="2026-07-15";
+  PREVIEW="A17-$RELEASE-Sep16";
+  BETA_REL_DATE="2026-09-16";
+  BETA_EXP_DATE="2026-10-27";
 
-  SEC_PATCH="2026-05-05";
-  ID="ZP11.260515.009";
-  INCREMENTAL="15513807";
+  SEC_PATCH="2026-09-05";
+  ID="ZP11.260821.010";
+  INCREMENTAL="16290768";
 
 # Different parameters for exceptional devices
 #  EX_DEVICES_LIST="oriole raven bluejay panther cheetah lynx tangorpro felix";
-  EX_SEC_PATCH="2026-05-05";
-  EX_ID="ZP11.260515.009";
-  EX_INCREMENTAL="15513807";
+  EX_SEC_PATCH="2026-09-05";
+  EX_ID="ZP11.260821.010";
+  EX_INCREMENTAL="16290768";
 
 else
 
-  # A17 Beta 4.1:
-  RELEASE="CinnamonBun";
-  #RELEASE="17";
-  PREVIEW="$RELEASE-QPR1-Beta4";
-  #PREVIEW="A$RELEASE-Beta4.1";
-  BETA_REL_DATE="2026-06-10";
-  BETA_EXP_DATE="2026-07-22";
+  RELEASE="17";
+  PREVIEW="A$RELEASE-Beta6.1";
+  BETA_REL_DATE="2026-09-29";
+  BETA_EXP_DATE="2026-11-10";
 
-  SEC_PATCH="2026-05-05";
-  ID="CP31.260522.006";
-  INCREMENTAL="15591510";
+  SEC_PATCH="2026-09-05";
+  ID="CP41.260831.007.A3";
+  INCREMENTAL="16450490";
 
 # Different parameters for exceptional devices
-  EX_DEVICES_LIST="oriole raven bluejay panther cheetah";
-  EX_SEC_PATCH="2026-05-05";
-  EX_ID="CP31.260522.006.A1";
-  EX_INCREMENTAL="15591683";
+  EX_DEVICES_LIST="cubs grizzly kodiak yogi";
+  EX_SEC_PATCH="2026-09-01";
+  EX_ID="CP41.260831.011";
+  EX_INCREMENTAL="16448103";
 
 fi
 item "PREVIEW: $PREVIEW, BETA_REL_DATE: $BETA_REL_DATE, BETA_EXP_DATE: $BETA_EXP_DATE";
 
-MODEL_LIST="Pixel_6 
-Pixel_6_Pro 
-Pixel_6a 
+MODEL_LIST="Pixel_6a 
 Pixel_7 
 Pixel_7_Pro 
 Pixel_7a 
@@ -89,16 +86,18 @@ Pixel_9_Pro
 Pixel_9_Pro_Fold 
 Pixel_9_Pro_XL 
 Pixel_10 
-Pixel 10a 
+Pixel_10a 
 Pixel_10_Pro 
 Pixel_10_Pro_XL 
 Pixel_10_Pro_Fold 
 Pixel_Fold 
-Pixel_Tablet ";
+Pixel_Tablet 
+Pixel_11 
+Pixel_11_Pro 
+Pixel_11_Pro_XL 
+Pixel_11_Pro_Fold ";
 
-DEVICE_LIST="oriole  
-raven 
-bluejay 
+DEVICE_LIST="bluejay 
 panther 
 cheetah 
 lynx 
@@ -116,7 +115,11 @@ blazer
 mustang 
 rango 
 felix 
-tangorpro ";
+tangorpro 
+cubs 
+grizzly 
+kodiak 
+yogi ";
 
 LIST_COUNT="$(echo "$MODEL_LIST" | wc -l)";
 item "LIST_COUNT: $LIST_COUNT";
