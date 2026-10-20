@@ -1,8 +1,9 @@
-#!/system/bin/bash
+##!/system/bin/bash
 
 # Android shell script _dump-keybox.sh for analyzing and dumping info from a keybox file.
 # Script only reads the KB file, it does not install KB file and does not make any changes to the KB file.
- 
+
+# https://github.com/zgfgNew/Etc/blob/main/_dump-keybox.sh
 # zgfg @ xda © Jan 2025- All Rights Reserved
 
 # Usage on rooted phones:

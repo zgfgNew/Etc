@@ -1,6 +1,8 @@
 #!/system/bin/bash
 
 # Crawl recursively to dump keybox files for Tricky Store module
+
+# https://github.com/zgfgNew/Etc/blob/main/_dump-keybox-files.sh
 # zgfg @ xda © July 2025- All Rights Reserved
 
 echo "Crawl recursively to dump keybox files for Tricky Store modules";
