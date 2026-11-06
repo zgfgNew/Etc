@@ -221,17 +221,22 @@ myPrint "Dump file: $TXT";
 rm -f "$TXT";
 myPrint "KeyBox file: $KB" >> "$TXT";
 
+# OpenSSL prints Signature Algorithm twice per certificate: only the first one is taken, the one that follows the Serial Number (the serial is either on the next
+# line or, when short, on the same line), the second one stays as 'Signature Algorithm:' and is not selected
 cat "$CER" | sed 's/^[ \t]*//' | \
-  sed '/^Serial Number/N;s/:[ \t]*\n/: /' | \
-  grep -Es '^Certificate:|^Serial Number:|^Issuer:|^Not Before|^Not After|^Subject:|^Public Key Algorithm:|CA:' | \
+  sed -e '/^Serial Number:[ \t]*$/{N;N;s/^Serial Number:[ \t]*\n\(.*\)\nSignature Algorithm:[ \t]*/Serial Number: \1\nSignature: /}' \
+      -e '/^Serial Number:/{N;s/\nSignature Algorithm:[ \t]*/\nSignature: /}' | \
+  grep -Es '^Certificate:|^Serial Number:|^Signature:|^Issuer:|^Not Before|^Not After|^Subject:|^Public Key Algorithm:|^Public-Key:|^RSA Public-Key:|^CA:' | \
+  sed 's/^RSA Public-Key:/Public-Key:/' | \
+  sed '/^Public Key Algorithm:/N;s/^Public Key Algorithm:[ \t]*\(.*\)\n[ \t]*Public-Key:[ \t]*(\([0-9]*\) bit)/Public Key: \1 (\2 bit)/' | \
   sed 's/^keyid://' | \
   sed 's/^Not After :/Not After:/' | \
   sed 's/^/  /' | sed 's/^[ ]*Certificate:/\nCERTIFICATE:/' >> "$TXT";
 echo "" >> "$TXT";
 
 # Extract Algorithms
-AlgorithmsList=$(cat "$TXT" | grep 'Public Key Algorithm:' | \
-  sed 's/^.*Public Key Algorithm://' | sed 's/^[ ]*//' | sed 's/ /_/g');
+AlgorithmsList=$(cat "$TXT" | grep 'Public Key:' | \
+  sed 's/^.*Public Key://' | sed 's/ (.*$//' | sed 's/^[ ]*//' | sed 's/ /_/g');
 
 if [ -z "$AlgorithmsList" ]; then
   myWarn "Public Key Algorithms not extracted" >> "$TXT";
