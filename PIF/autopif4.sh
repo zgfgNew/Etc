@@ -2,6 +2,15 @@
 
 # https://github.com/Vagelis1608/get_the_canary_miner/tree/main/devices
 
+# Forcing DEVICE/MODEL by index
+# my_list_ind="1";  # bluejay, 6a
+
+# Forcing DEVICE/MODEL by name
+ my_DEVICE="bluejay";
+ my_MODEL="Pixel 6a";
+# my_DEVICE="cubs";
+# my_MODEL="Pixel 11";
+
 if [ "$USER" != "root" -a "$(whoami 2>/dev/null)" != "root" ]; then
   echo "autopif4: need root permissions";
 fi;
@@ -79,7 +88,7 @@ cd "$DIR";
 
 item "Crawling Android Developers for latest Pixel Beta device list ...";
 wget -q -T 10 -O PIXEL_VERSIONS_HTML --no-check-certificate "https://developer.android.com/about/versions" 2>&1 || exit 1;
-LATEST_BETA=$(grep -B4 -A2 'data-icon=\"preview' PIXEL_VERSIONS_HTML | grep -o 'href="/about/versions/.*[0-9]"' | cut -d\" -f2);
+LATEST_BETA=$(grep -B4 -A2 'data-icon="preview' PIXEL_VERSIONS_HTML | grep -o 'href="/about/versions/.*[0-9]"' | cut -d\" -f2);
 [ "$LATEST_BETA" ] || LATEST_BETA=$(grep -oE 'href="/about/versions/[0-9]{2}"' PIXEL_VERSIONS_HTML | cut -d\" -f2 | sort -ru | head -n1);
 wget -q -T 10 -O PIXEL_LATEST_HTML --no-check-certificate "https://developer.android.com$LATEST_BETA" 2>&1 || exit 1;
 wget -q -T 10 -O PIXEL_FI_HTML --no-check-certificate "https://developer.android.com$(grep -o 'href=".*download.*"' PIXEL_LATEST_HTML | grep -v 'ota' | cut -d\" -f2 | sort -ru | head -n1)" 2>&1 || exit 1;
@@ -94,8 +103,13 @@ item "Selecting Pixel Beta device ...";
 echo "MODEL_LIST=$MODEL_LIST";
 echo "PRODUCT_LIST=$PRODUCT_LIST";
 
+DEVICE="$(getprop ro.product.device)";
+case $DEVICE in
+  frankel|blazer|mustang|rango) unset FORCE_MATCH;; # Pixel 10 Series
+  cubs|grizzly|kodiak|yogi) unset FORCE_MATCH;; # Pixel 11 Series
+esac;
+
 if [ "$FORCE_MATCH" ]; then
-  DEVICE="$(getprop ro.product.device)";
   case "$(echo ' '$PRODUCT_LIST' ')" in
     *" ${DEVICE}_beta "*)
       MODEL="$(getprop ro.product.model)";
@@ -103,47 +117,31 @@ if [ "$FORCE_MATCH" ]; then
   esac;
 fi;
 
-# Forcing DEVICE/MODEL by names
-if [ -z "$MODEL" ]; then
-  Dummy="dummy"; 
-#  DEVICE="lynx";
-#  MODEL="Pixel 7a";
-  DEVICE="shiba";
-  MODEL="Pixel 8";
-  DEVICE="bluejay";
-  MODEL="Pixel 6a";
-#  DEVICE="stallion";
-#  MODEL="Pixel 10a";
-#  DEVICE="cubs";
-#  MODEL="Pixel 11";
-#  DEVICE="grizzly";
-#  MODEL="Pixel 11 Pro";
-#  DEVICE="kodiak";
-#  MODEL="Pixel 11 Pro XL";
-#  DEVICE="yogi";
-#  MODEL="Pixel 11 Pro Fold";
+# Forcing DEVICE/MODEL by name
+if [ -z "$MODEL" -a -z "$my_list_ind" ]; then
+  DEVICE="$my_DEVICE";
+  MODEL="$my_MODEL";
 fi;
 
 if [ -n "$MODEL" ]; then
   PRODUCT="${DEVICE}_beta";
 fi;
-
 set_random_beta() {
   local list_count="$(echo "$MODEL_LIST" | wc -l)";
-  local list_ind="$RANDOM";
+  local list_rand="$((RANDOM % $list_count + 1))";
+  local IFS=$'\n';
 
 # Forcing DEVICE/MODEL by index
-  list_ind="18";
+  if [ -n "$my_list_ind" ]; then
+    list_rand="$my_list_ind";
+  fi;
 
-  local list_rand="$(($list_ind % $list_count + 1))";
-  local IFS=$'\n';
   set -- $MODEL_LIST;
   MODEL="$(eval echo \${$list_rand})";
   set -- $PRODUCT_LIST;
   PRODUCT="$(eval echo \${$list_rand})";
   DEVICE="$(echo "$PRODUCT" | sed 's/_beta//')";
-
-  echo "list_ind=$list_ind, list_count=$list_count, list_rand=$list_rand";
+  echo "my_list_ind=$my_list_ind, list_count=$list_count, list_rand=$list_rand";
 }
 if [ -z "$PRODUCT" ]; then
   set_random_beta;
@@ -208,6 +206,24 @@ if [ -z "$SECURITY_PATCH" ]; then
 fi;
 echo "$SECURITY_PATCH";
 
+item "Adding corresponding first API level ...";
+case $DEVICE in
+  bluejay) DEVICE_INITIAL_SDK_INT=32;; # Pixel 6a
+  panther|cheetah) DEVICE_INITIAL_SDK_INT=33;; # Pixel 7 Series
+  lynx) DEVICE_INITIAL_SDK_INT=33;; # Pixel 7a
+  felix) DEVICE_INITIAL_SDK_INT=33;; # Pixel Fold
+  tangorpro) DEVICE_INITIAL_SDK_INT=33;; # Pixel Tablet
+  shiba|husky) DEVICE_INITIAL_SDK_INT=34;; # Pixel 8 Series
+  akita) DEVICE_INITIAL_SDK_INT=34;; # Pixel 8a
+  tokay|caiman|komodo|comet) DEVICE_INITIAL_SDK_INT=34;; # Pixel 9 Series
+  tegu) DEVICE_INITIAL_SDK_INT=35;; # Pixel 9a
+  frankel|blazer|mustang|rango) DEVICE_INITIAL_SDK_INT=36;; # Pixel 10 Series
+  stallion) DEVICE_INITIAL_SDK_INT=35;; # Pixel 10a; Actual 36
+  cubs|grizzly|kodiak|yogi) DEVICE_INITIAL_SDK_INT=37;; # Pixel 11 Series
+  *) DEVICE_INITIAL_SDK_INT=37;;
+esac;
+echo "$DEVICE_INITIAL_SDK_INT";
+
 item "Dumping values to minimal pif.prop ...";
 cat <<EOF | tee pif.prop;
 MANUFACTURER=Google
@@ -216,7 +232,7 @@ FINGERPRINT=google/$PRODUCT/$DEVICE:CANARY/$ID/$INCREMENTAL:user/release-keys
 PRODUCT=$PRODUCT
 DEVICE=$DEVICE
 SECURITY_PATCH=$SECURITY_PATCH
-DEVICE_INITIAL_SDK_INT=32
+DEVICE_INITIAL_SDK_INT=$DEVICE_INITIAL_SDK_INT
 EOF
 
 for MIGRATE in migrate.sh /data/adb/modules/playintegrityfix/migrate.sh; do
@@ -227,8 +243,7 @@ if [ -f "$MIGRATE" ]; then
     [ -f "$OLDPIF" ] && break;
   done;
   if [ -f "$OLDPIF" ]; then
-    grep -q '//"\*.security_patch"' $OLDPIF && PATCH_COMMENT=1;
-    grep -q '#\*.security_patch' $OLDPIF && PATCH_COMMENT=1;
+    grep -qE '//"*.security_patch"|#*.security_patch' $OLDPIF && PATCH_COMMENT=1;
     grep -qE "verboseLogs|VERBOSE_LOGS" $OLDPIF && ARGS="-a";
   else
     FORCE_STRONG=1;
@@ -239,7 +254,7 @@ if [ -f "$MIGRATE" ]; then
   else
     item "Retaining existing configuration ...";
   fi;
-  [ -d /data/adb/tricky_store ] && unset PATCH_COMMENT;
+  [ -d /data/adb/tricky_store -o -d /data/adb/teesim -o -d /data/adb/omk ] && unset PATCH_COMMENT;
   item "Converting pif.prop to custom.pif.prop with migrate.sh:";
   rm -f pif.json custom.pif.json custom.pif.prop;
   sh $MIGRATE -i $ARGS pif.prop;
@@ -260,7 +275,7 @@ if [ -f "$MIGRATE" ]; then
       [ -n "$TMPVAL" ] && sed -i "s;\($SETTING=\).;\1$TMPVAL;" custom.pif.prop;
     done;
   fi;
-  [ "$PATCH_COMMENT" ] && sed -i 's;\*.security_patch;#\*.security_patch;' custom.pif.prop;
+  [ "$PATCH_COMMENT" ] && sed -i 's;ro.build.version.security_patch;#ro.build.version.security_patch;' custom.pif.prop;
   echo "\n# Canary Released: $CANARY_REL_DATE\n# Estimated Expiry: $CANARY_EXP_DATE" >> custom.pif.prop;
   cat custom.pif.prop;
 fi;
