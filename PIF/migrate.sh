@@ -192,6 +192,7 @@ spoofVendingFinger=0;
 #spoofVendingFinger=1;
 #spoofVendingFinger="$FINGERPRINT";
 #verboseLogs=3;
+#SECURITY_PATCH="2026-11-05";
 ### ### ### ### ### ### ### ### ### ###
 
 [ "$INSTALL" ] || item "Writing fields and properties to updated custom.pif.$FORMAT ...";

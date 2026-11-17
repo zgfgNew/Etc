@@ -33,7 +33,7 @@ item() { echo "\n- $@"; }
 #https://gist.github.com/ItzLevvie/1a82ba4b8c9e978baeea68342c1f92c5#file-readme-md
 
 # Uncomment to enable A17 Canary prints
-CANARY=1
+#CANARY=1
 
 if [ -n "$CANARY" ]; then
 
@@ -55,15 +55,21 @@ if [ -n "$CANARY" ]; then
 
 else
 
-  # A17 QPR3 Beta2
+  # A17 QPR3 Beta4
   RELEASE="17";
-  PREVIEW="A$RELEASE-QPR3-Beta2";
-  BETA_REL_DATE="2026-10-20";
-  BETA_EXP_DATE="2026-12-01";
+  PREVIEW="A$RELEASE-QPR3-Beta4";
+  BETA_REL_DATE="2026-11-12";
+  BETA_EXP_DATE="2026-12-24";
 
   SEC_PATCH="2026-10-05";
-  ID="DP11.261002.005";
-  INCREMENTAL="16594701";
+  ID="DP11.261030.003";
+  INCREMENTAL="16847878";
+
+# Different parameters for exceptional devices
+#  EX_DEVICES_LIST="cubs grizzly kodiak yogi";
+  EX_SEC_PATCH="2026-10-05";
+  EX_ID="DP11.261030.003";
+  EX_INCREMENTAL="16847878";
 
 fi
 item "PREVIEW: $PREVIEW, BETA_REL_DATE: $BETA_REL_DATE, BETA_EXP_DATE: $BETA_EXP_DATE";
