@@ -1,27 +1,3 @@
-# Lisa
-# Xiaomi.eu HyperOS v2.016 ROM
-# [ro.vendor.build.security_patch]: [2025-11-01]
-
-# Davinci
-# MIUI Global v121.4 ROM
-# [ro.vendor.build.security_patch]: [2021-06-01]
-
-#all=20170103
-#all=20181001
-#all=20190401
-#all=20190901
-#all=20210301
-#all=20210601
-#all=20211005
-#all=20220801
-#all=20260705
-#all=20260805
-
-# Advanced
-#system=202608
-#boot=2026-08-05
-#vendor=2026-08-05
-
 #all=today
 all=YYYY-MM-05
 
