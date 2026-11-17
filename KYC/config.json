@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "profiles": {
+    "PI": {
+      "keybox": "takr41-keybox.xml",
+      "mode": "patch",
+      "patchLevel": {
+        "system": "YYYY-MM",
+        "vendor": "YYYY-MM-05",
+        "boot": "YYYY-MM-05"
+      },
+      "osVersion": "",
+      "brand": "",
+      "device": "",
+      "product": "",
+      "manufacturer": "",
+      "model": "",
+      "serial": "",
+      "imei": "",
+      "meid": "",
+      "imei2": "",
+      "apps": [
+        "com.android.vending",
+        "io.github.vvb2060.keyattestation"
+      ],
+      "autoIncludeNewApps": false
+    },
+    "Legacy-PI": {
+      "keybox": "takr41-keybox.xml",
+      "mode": "patch",
+      "patchLevel": {
+        "system": "no",
+        "vendor": "",
+        "boot": ""
+      },
+      "osVersion": "",
+      "brand": "",
+      "device": "",
+      "product": "",
+      "manufacturer": "",
+      "model": "",
+      "serial": "",
+      "imei": "",
+      "meid": "",
+      "imei2": "",
+      "apps": [
+        "com.google.android.gms"
+      ],
+      "autoIncludeNewApps": false
+    }
+  }
+}
